@@ -20,6 +20,7 @@ import br.edu.ifms.ppp_crud_rest.dto.SolicitacaoResponseDTO;
 import br.edu.ifms.ppp_crud_rest.excecao.SolicitacaoNotFoundException;
 import br.edu.ifms.ppp_crud_rest.modelo.Solicitacao;
 import br.edu.ifms.ppp_crud_rest.servico.SolicitacaoServico;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/solicitacoes")
@@ -33,7 +34,7 @@ public class SolicitacaoControle {
 	private SolicitacaoMapper solicitacaoMapper;
 	
 	@PostMapping
-    public ResponseEntity<SolicitacaoResponseDTO> salvar(@RequestBody SolicitacaoCreateDTO solicitacaoCreateDTO) {
+    public ResponseEntity<SolicitacaoResponseDTO> salvar(@RequestBody @Valid SolicitacaoCreateDTO solicitacaoCreateDTO) {
         Solicitacao solicitacao = solicitacaoMapper.toEntity(solicitacaoCreateDTO);
         
         Solicitacao solicitacaoGravada = solicitacaoServico.gravar(solicitacao);
@@ -53,42 +54,29 @@ public class SolicitacaoControle {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Object> buscarUm(@PathVariable(value = "id") Long id) {
-		try {
-			Solicitacao solicitacaoGravada = solicitacaoServico.buscarSolicitacaoPorId(id);
+	public ResponseEntity<Object> buscarUm(@PathVariable(value = "id") Long id) throws SolicitacaoNotFoundException {
+		Solicitacao solicitacaoGravada = solicitacaoServico.buscarSolicitacaoPorId(id);
 			
-			SolicitacaoResponseDTO solicitacaoResponseDTO = solicitacaoMapper.toDTO(solicitacaoGravada);
+		SolicitacaoResponseDTO solicitacaoResponseDTO = solicitacaoMapper.toDTO(solicitacaoGravada);
 			
-			return ResponseEntity.status(HttpStatus.OK).body(solicitacaoResponseDTO);
-			
-		} catch (SolicitacaoNotFoundException e){
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+		return ResponseEntity.status(HttpStatus.OK).body(solicitacaoResponseDTO);	
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Object> alterar(@PathVariable(value = "id") Long id, @RequestBody SolicitacaoCreateDTO solicitacaoCreateDTO) {
-		try {
-			Solicitacao solicitacao = solicitacaoMapper.toEntity(solicitacaoCreateDTO);
+	public ResponseEntity<Object> alterar(@PathVariable(value = "id") Long id, @RequestBody @Valid SolicitacaoCreateDTO solicitacaoCreateDTO) throws SolicitacaoNotFoundException {
+		Solicitacao solicitacao = solicitacaoMapper.toEntity(solicitacaoCreateDTO);
 			
-			Solicitacao solicitacaoGravada = solicitacaoServico.alterarSolicitacao(id, solicitacao);
+		Solicitacao solicitacaoGravada = solicitacaoServico.alterarSolicitacao(id, solicitacao);
 			
-			SolicitacaoResponseDTO solicitacaoResponseDTO = solicitacaoMapper.toDTO(solicitacaoGravada);
+		SolicitacaoResponseDTO solicitacaoResponseDTO = solicitacaoMapper.toDTO(solicitacaoGravada);
 			
-			return ResponseEntity.status(HttpStatus.OK).body(solicitacaoResponseDTO);
-		} catch (SolicitacaoNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+		return ResponseEntity.status(HttpStatus.OK).body(solicitacaoResponseDTO);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Object> apagar(@PathVariable(value = "id") Long id) {
-		try {
-			solicitacaoServico.apagarSolicitacao(id);
-			return ResponseEntity.status(HttpStatus.OK).body("Removido com sucesso!");
-		} catch (SolicitacaoNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+	public ResponseEntity<Object> apagar(@PathVariable(value = "id") Long id) throws SolicitacaoNotFoundException {
+		solicitacaoServico.apagarSolicitacao(id);
+		return ResponseEntity.status(HttpStatus.OK).body("Removido com sucesso!");
 	}
 	
 	
